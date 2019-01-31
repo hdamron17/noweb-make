@@ -1,0 +1,26 @@
+\documentclass{article}
+
+\usepackage{noweb-output}
+
+\begin{document}
+  \section{CPP File}
+<<MyCpp.cpp>>=
+#include <iostream>
+#include "MyHeader.hpp"
+using namespace std;
+int add(int a, int b) {
+  return a + b;
+}
+int main() {
+  cout << "Hello from C++" << endl;
+  cout << "4 + 5 = " << add(4,5) << endl;
+}
+@ \section{Header File}
+<<MyHeader.hpp>>=
+int add(int a, int b);
+@ \noweboutput{MyCpp.cpp}
+  \section{Python File}
+<<MyPython.py>>=
+print("Hello from Python")
+@ \noweboutput{MyPython.py}
+\end{document}
