@@ -9,15 +9,19 @@ AUX_EXTENSIONS+=h hpp # Extensions of additional files which are important but a
 
 # TODO eventually BUILD will be user changeable
 BUILD=build
+NOWEB=$(BUILD)
 NOWEBS=$(wildcard *.nw)
 #NOWEBS=$(shell find . -name "*.nw")  # TODO make this makefile work with arbitrary structure
 PDFS=$(patsubst %.nw,%.pdf,$(NOWEBS))
 
 NOWEAVE=noweave
 NOTANGLE=notangle
+CPIF=cpif
 
 LATEXMK=latexmk
 LATEXMKFLAGS=-outdir=$(BUILD) -pdf -interaction=nonstopmode --shell-escape
+
+-include user_rules.mk
 
 .PHONY: all
 all: $(PDFS)
@@ -31,15 +35,12 @@ $(PDFS): %.pdf: $(BUILD)/%.pdf
 $(BUILD)/%.tex: %.nw | $(BUILD)
 	$(NOWEAVE) -delay -latex $< > $@
 
-# $(NOWEBRULES): $(NOWEBS) | $(BUILD)
-# 	./noweb_rules.py > $@
-
 $(BUILD):
 	mkdir -p $(BUILD)
 
 .PHONY: clean
 clean:
-	rm -rf $(BUILD) $(PDFS) $(MORECLEAN)
+	$(RM) -r $(BUILD) $(PDFS) $(MORECLEAN)
 
 OUTPUT_EXTENSIONS:=$(patsubst \%.%.output:,%,$(shell grep -oh '^%\..*\.output:' $(MAKEFILE_LIST)))
 EXTENSIONS=$(OUTPUT_EXTENSIONS) $(AUX_EXTENSIONS)
@@ -47,13 +48,11 @@ EXTENSIONS=$(OUTPUT_EXTENSIONS) $(AUX_EXTENSIONS)
 EXTGRP=$(shell echo $(EXTENSIONS) | tr -s ' ' | sed 's/ /\\|/g')
 NOWEBDEPS=$(patsubst <<%>>=,%,$(shell grep -oh '<<.*\.\($(EXTGRP)\)>>=' $(1)))  # Function which gets deps of a nowebfile
 
-NOTANGLE_RULE=$(NOTANGLE) -R$(patsubst $(BUILD)/%,%,$@) $^ > $@  # TODO put this inside instead
-
 define NOTANGLEDEP
-tangled:=$$(addprefix $(BUILD)/,$$(strip $$(call NOWEBDEPS,$(1))))
-$$(tangled): $(1) | $(BUILD)
-	$$(NOTANGLE_RULE)
-$$(patsubst %.nw,$(BUILD)/%.pdf,$(1)): $$(patsubst %,%.output,$$(tangled))
+tangled:=$$(addprefix $$(BUILD)/,$$(strip $$(call NOWEBDEPS,$(1))))
+$$(tangled): $(BUILD)/%: $(1) | $$(BUILD)
+	$$(NOTANGLE) -R$$* $$^ | $$(CPIF) $$@
+$$(patsubst %.nw,$$(BUILD)/%.pdf,$(1)): $$(patsubst %,%.output,$$(tangled))
 endef
 
 $(foreach nw, $(NOWEBS), $(eval $(call NOTANGLEDEP,$(nw))))
@@ -64,17 +63,27 @@ define EMPTYDEP
 endef
 $(foreach ext,$(AUX_EXTENSIONS),$(eval $(call EMPTYDEP,$(ext))))
 
--include user_rules.mk
-
 ### Default output rules
+PY=python
+PYFLAGS=
+
+MATLAB=matlab
+MATLABFLAGS=-nosplash -nodesktop
+
 %.py.output: %.py
-	python $< > $@
+	cd $(*D) && $(PY) $(PYFLAGS) $(<F) > $(@F)
 
 %.cpp.output: %.exe %.cpp
-	./$< > $@
+	cd $(*D) && ./$(<F) > $(@F)
 
 # TODO figure out why % rules fail
 %.exe: %.cpp
-	g++ $< -o $@
+	$(CXX) $(CXXFLAGS) $< -o $@
 
+%.m.output: %.m
+	cd $(*D) && $(MATLAB) $(MATLABFLAGS) -r "echo on, try, run(\"$(<F)\"), catch e, getReport(e, 'extended'), exit, end, exit" | tail -n+11 | sed -e '$$ d' > $(@F)
+
+
+# These dependencies don't work for some reason
 %.cpp: %.hpp
+%.c: %.h

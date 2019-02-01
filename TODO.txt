@@ -1,0 +1,1 @@
+* C/C++ pattern dependencies for headers have no effect (i.e. %.c: %.h)

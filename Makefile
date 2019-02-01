@@ -1,3 +1,4 @@
 include noweb.mk
 
-$(BUILD)/MyCpp.cpp: $(BUILD)/MyHeader.hpp
+%.cpp: %.hpp
+$(NOWEB)/MyCpp.cpp: $(NOWEB)/MyCpp.hpp

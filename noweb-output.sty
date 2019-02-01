@@ -4,11 +4,12 @@
 
 \RequirePackage{noweb}
 \RequirePackage{listings}
+\RequirePackage{graphicx}
 
 \def\builddir{build}  % Eventually this should be modifiable
 
 %%% CAUTION: the parser currently looks for these explicitly
 \newcommand{\noweboutput}[1]{\lstinputlisting[frame=lines,basicstyle=\footnotesize\ttfamily]{\builddir/#1.output}}
-%\newcommand{\nowebimage}[2][]{\inputgraphics[#1]{\builddir/#2}  % TODO
+\newcommand{\nowebimage}[2][]{\includegraphics[#1]{\builddir/#2}}
 
 \endinput

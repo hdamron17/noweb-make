@@ -6,7 +6,7 @@
   \section{CPP File}
 <<MyCpp.cpp>>=
 #include <iostream>
-#include "MyHeader.hpp"
+#include "MyCpp.hpp"
 using namespace std;
 int add(int a, int b) {
   return a + b;
@@ -15,12 +15,28 @@ int main() {
   cout << "Hello from C++" << endl;
   cout << "4 + 5 = " << add(4,5) << endl;
 }
-@ \section{Header File}
-<<MyHeader.hpp>>=
-int add(int a, int b);
 @ \noweboutput{MyCpp.cpp}
-  \section{Python File}
+  \section{Header File}
+<<MyCpp.hpp>>=
+int add(int, int);
+@ \section{Python File}
 <<MyPython.py>>=
+import matplotlib.pyplot as plt
+import numpy as np
 print("Hello from Python")
+x = np.linspace(-2,2,100)
+y = np.power(x, 2)
+plt.plot(x,y)
+plt.savefig("Graph.pdf")
 @ \noweboutput{MyPython.py}
+\begin{figure}[h!]
+  \centering
+  \caption{Sample image as output}
+  \nowebimage[width=0.6\textwidth]{Graph.pdf}
+\end{figure}
+\section{Matlab File}
+<<MyMatlab.m>>=
+X = [3,4,5; 5,6,7; 8,9,1];
+inv(X)
+@ \noweboutput{MyMatlab.m}
 \end{document}
