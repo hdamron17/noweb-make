@@ -19,7 +19,7 @@ NOTANGLE=notangle
 CPIF=cpif
 
 LATEXMK=latexmk
-LATEXMKFLAGS=-outdir=$(BUILD) -pdf -interaction=nonstopmode --shell-escape
+LATEXMKFLAGS=-outdir=$(BUILD) -pdf -interaction=nonstopmode --shell-escape -g -use-make  # Look at options -M, -MF file
 
 -include user_rules.mk
 
